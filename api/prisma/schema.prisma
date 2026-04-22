@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model msg_logs {
+  id         Int          @id @default(autoincrement())
+  from       source_names
+  to         source_names
+  message    String       @db.VarChar(200)
+  created_at DateTime     @default(now()) @db.Timestamp(6)
+  msg_status msg_status
+  address    String       @db.VarChar
+  sent_at    DateTime?    @db.Timestamp(6)
+}
+
+model notification_preferences {
+  id            Int     @id @default(autoincrement())
+  user_id       Int
+  optted_in     Boolean @default(false)
+  receive_text  Boolean @default(false)
+  receive_email Boolean @default(false)
+  users         users   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_users")
+}
+
+model scheduled_msgs {
+  id                      Int            @id @default(autoincrement())
+  text                    String         @db.VarChar(200)
+  schedule_interval_value Int?
+  created_at              DateTime       @default(now()) @db.Timestamp(6)
+  created_by              Int
+  is_active               Boolean        @default(false)
+  schedule_interval_type  interval_types
+  start_time              DateTime       @default(now()) @db.Timestamp(6)
+  end_time                DateTime       @default(now()) @db.Timestamp(6)
+  users                   users          @relation(fields: [created_by], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_users")
+}
+
+model users {
+  id                       Int                        @id @default(autoincrement())
+  display_name             String?                    @default(dbgenerated("('user_'::text || lpad((floor((random() * (100000)::double precision)))::text, 5, '0'::text))")) @db.VarChar(50)
+  username                 String                     @unique @db.VarChar(20)
+  password_hash            String                     @db.VarChar(225)
+  password_salt            String                     @db.VarChar(20)
+  email                    String?                    @unique @db.VarChar(50)
+  phone                    Int?                       @unique
+  notification_preferences notification_preferences[]
+  scheduled_msgs           scheduled_msgs[]
+  wo_logs                  wo_logs[]
+}
+
+model wo_logs {
+  id           Int           @id @default(autoincrement())
+  question_id  Int
+  rating_value Int           @default(0)
+  rating_type  rating_type
+  created_at   DateTime      @default(now()) @db.Timestamp(6)
+  user_id      Int
+  source       source_names?
+  comments     String?       @db.VarChar(255)
+  updated_at   DateTime      @default(now()) @db.Timestamp(6)
+  users        users         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_users")
+  wo_questions wo_questions  @relation(fields: [question_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_wo_questions")
+
+  @@index([question_id], map: "index_questions")
+  @@index([id, user_id], map: "user_id")
+}
+
+model wo_questions {
+  id              Int       @id @default(autoincrement())
+  question_string String    @unique @db.VarChar(100)
+  created_by      String    @db.VarChar(20)
+  created_at      DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at      DateTime? @db.Timestamp(6)
+  wo_logs         wo_logs[]
+}
+
+enum interval_types {
+  HOUR
+  DAY
+  WEEK
+  MONTH
+  YEAR
+}
+
+enum msg_status {
+  CREATED
+  QUEUED
+  SENT
+  OPENED
+  ACKNOWLEDGED
+  ERROR
+}
+
+enum rating_type {
+  NUMBER
+  FEELING
+  PERCENT
+}
+
+enum source_names {
+  APP
+  TEXT
+  EMAIL
+  USER
+}
