@@ -5,7 +5,7 @@ import { UpdateWorkoutLogDto } from './dto/update-workout-log.dto';
 
 @Controller('workout-log')
 export class WorkoutLogController {
-  constructor(private readonly workoutLogService: WorkoutLogService) {}
+  constructor(private readonly workoutLogService: WorkoutLogService) { }
 
   @Post()
   create(@Body() createWorkoutLogDto: CreateWorkoutLogDto) {

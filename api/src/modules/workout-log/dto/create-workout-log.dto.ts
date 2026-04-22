@@ -1,13 +1,10 @@
-import { RatingType, SourceType } from 'src/common/enums';
+import { rating_type, source_names } from 'generated/prisma/enums';
 
 export class CreateWorkoutLogDto {
-  id: Number;
-  question_id: Number;
-  rating_value: Number;
-  rating_type: RatingType;
-  created_at: Date;
-  user_id: Number;
-  source: SourceType;
-  comments?: String;
-  updated_at: Date;
+  question_id: number;
+  rating_value: number;
+  rating_type: rating_type;
+  user_id: number;
+  source: source_names;
+  comments?: string;
 }

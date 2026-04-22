@@ -1,11 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { CreateWorkoutLogDto } from './dto/create-workout-log.dto';
 import { UpdateWorkoutLogDto } from './dto/update-workout-log.dto';
+import { PrismaService } from 'src/common/prisma/prisma.service';
+import { CreateWorkoutLogDto } from './dto/create-workout-log.dto';
 
 @Injectable()
 export class WorkoutLogService {
-  create(createWorkoutLogDto: CreateWorkoutLogDto) {
-    return 'This action adds a new workoutLog';
+  constructor(private prisma: PrismaService) { }
+
+  create(dto: CreateWorkoutLogDto) {
+    return this.prisma.wo_logs.create({
+      data: {
+        question_id: dto.question_id,
+        rating_value: dto.rating_value,
+        rating_type: dto.rating_type,
+        user_id: dto.user_id,
+        source: dto.source,
+        comments: dto.comments,
+      },
+    });
   }
 
   findAll() {
