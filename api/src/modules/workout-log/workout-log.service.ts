@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { UpdateWorkoutLogDto } from './dto/update-workout-log.dto';
-import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateWorkoutLogDto } from './dto/create-workout-log.dto';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/common/prisma/prisma.service';
+import { UpdateWorkoutLogDto } from './dto/update-workout-log.dto';
 
 @Injectable()
 export class WorkoutLogService {
@@ -21,18 +21,31 @@ export class WorkoutLogService {
   }
 
   findAll() {
-    return `This action returns all workoutLog`;
+    return this.prisma.wo_logs.findMany();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} workoutLog`;
+    return this.prisma.wo_logs.findUnique({
+      where: { id }
+    });
   }
 
-  update(id: number, updateWorkoutLogDto: UpdateWorkoutLogDto) {
-    return `This action updates a #${id} workoutLog`;
+  update(id: number, dto: UpdateWorkoutLogDto) {
+    return this.prisma.wo_logs.update({
+      where: { id },
+      data: {
+        comments: dto.comments,
+        question_id: dto.question_id,
+        rating_type: dto.rating_type,
+        rating_value: dto.rating_value,
+        source: dto.source,
+      }
+    });
   }
 
   remove(id: number) {
-    return `This action removes a #${id} workoutLog`;
+    return this.prisma.wo_logs.delete({
+      where: { id }
+    });
   }
 }
